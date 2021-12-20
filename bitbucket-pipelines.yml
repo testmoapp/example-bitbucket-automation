@@ -1,0 +1,41 @@
+image: node:16
+
+pipelines:
+  default:
+    - step:
+        name: Build
+        script:
+          - echo "Building .."
+
+    - step:
+        name: Test
+        caches:
+          - npm
+        script:
+          - npm ci
+          - npm install --no-save @testmo/testmo-cli
+
+          # Optionally add a couple of fields such as the git hash and link to the build
+          - npx testmo automation:resources:add-field --name git --type string
+              --value ${BITBUCKET_COMMIT:0:7} --resources resources.json
+          - BUILD_URL="$BITBUCKET_GIT_HTTP_ORIGIN/addon/pipelines/home#!/results/$BITBUCKET_BUILD_NUMBER"
+          - npx testmo automation:resources:add-link --name build
+              --url $BUILD_URL --resources resources.json
+
+          - npx testmo automation:run:submit
+              --instance $TESTMO_URL
+              --project-id 1
+              --name "Mocha test run"
+              --source "unit-tests"
+              --resources resources.json
+              --results results/*.xml
+              -- npm run mocha-junit # Note space after --
+
+    - step:
+        name: Deploy
+        script:
+          - echo "Deploying .."
+
+definitions:
+  caches:
+    npm: ~/.npm
