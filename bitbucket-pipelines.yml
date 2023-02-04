@@ -28,12 +28,12 @@ pipelines:
           # Check if the required variables are available
           - >
             if [[ -z "${TESTMO_URL}" ]]; then
-              echo "The TESTMO_URL secret is not defined for this repository"
+              echo "The TESTMO_URL variable is not defined for this repository"
               exit 1
             fi
 
             if [[ -z "${TESTMO_TOKEN}" ]]; then
-              echo "The TESTMO_TOKEN secret is not defined for this repository"
+              echo "The TESTMO_TOKEN variable is not defined for this repository"
               exit 1
             fi
 
